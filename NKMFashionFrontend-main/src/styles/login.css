@@ -1,0 +1,115 @@
+* {
+    font-family: Poppins;
+}
+
+/* Hide the spinner for WebKit browsers */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.chart-container {
+    width: 300px; /* Adjust the width as needed */
+    height: 300px; /* Adjust the height as needed */
+}
+
+/* Hide the spinner for Firefox */
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+:root {
+    --primary-color: #35AF87;
+    --secondary-color: #16796E;
+    --background-color: #F9FAFB;
+    --button-dark-color: #1A5B63;
+}
+
+.pass {
+    padding: 10px;
+}
+
+.submit {
+    background-color: #35AF87;
+    padding: 10px;
+}
+
+.submit:hover {
+    background-color: #16796E;
+}
+
+.custom {
+    background-color: #35AF87;
+}
+
+.custom:hover {
+    background-color: #16796E;
+}
+
+.text-color{
+    color: #35AF87;
+}
+
+@keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .animate-fadeIn {
+    animation: fadeIn 0.4s ease-out forwards;
+  }
+  
+
+.forgotPass:hover {
+    color: #16796E;
+}
+
+.forgotPass {
+    color: #35AF87;
+}
+
+.background-white {
+    background-color: #F9FAFB;
+}
+
+.button-bg-color {
+    background-color: var(--primary-color);
+}
+
+.button-bg-color:hover {
+    background-color: var(--secondary-color);
+}
+
+.button-mid-dark-color {
+    background-color: var(--secondary-color);
+}
+
+.button-dark-color {
+    background-color: var(--button-dark-color);
+}
+
+.text-color {
+    color: #35AF87;
+}
+
+.Toastify__toast--success {
+    background-color: var(--primary-color) !important;
+    /* Success toast background */
+}
+
+.Toastify__toast--error {
+    background-color: #f44336 !important;
+    /* Error toast background */
+}
+
+.Toastify__toast {
+    color: white !important;
+    /* General text color for all toasts */
+}

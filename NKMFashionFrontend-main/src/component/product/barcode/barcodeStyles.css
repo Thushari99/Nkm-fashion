@@ -1,0 +1,172 @@
+/* style.css */
+
+/* General styles for barcode container */
+#printableArea {
+    display: grid;
+    grid-template-columns: repeat(var(--barcodesPerRow), var(--sticker-width));
+    /* Two stickers per row */
+    gap: 0;
+    /* Gap between stickers */
+    width: calc(var(--barcodesPerRow) * var(--sticker-width) + var(--sticker-gap));
+    /* Total width for two stickers plus gap */
+    padding: 0;
+    /* No padding */
+    margin: 0;
+    /* No margin */
+    box-sizing: border-box;
+    /* Include padding and border in total width */
+    /* background: yellow; */
+    /* border: "1px solid blue", */
+
+}
+
+/* Each barcode sticker */
+.barcode-sticker {
+    width: var(--sticker-width);
+    height: var(--sticker-height);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    /* border: 1px solid red;  */
+    background: transparent;
+    /* Keep it transparent for printing */
+    page-break-inside: avoid;
+    margin: 2;
+    /* No margin */
+    padding: 2px;
+    /* No padding */
+    box-sizing: border-box;
+
+}
+
+
+/* Company name */
+.company-name {
+    margin: 0;
+    padding: 0;
+    font-size: 14px;
+    text-align: center;
+    font-weight: bold;
+    font-family: Arial, sans-serif;
+}
+
+/* Barcode container */
+.barcode-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 40mm;
+    height: 10mm;
+    overflow: visible;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+
+}
+
+/* Product name */
+.product-name {
+    font-size: 10px;
+    font-weight: bold;
+    font-family: Arial, sans-serif;
+    text-align: center;
+    margin: 0;
+    padding: 0;
+}
+
+/* Price */
+.price {
+    font-size: 16px;
+    text-align: center;
+    font-weight: bold;
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+/* Print-specific settings */
+@media print {
+    @page {
+        size: auto;
+        /* Use full available space */
+        margin: 0;
+        /* Remove browser print margins */
+    }
+
+    #printableArea {
+        width: 100%;
+        background: white;
+        /* Remove background color for print */
+        /* border: none; */
+    }
+
+
+    .barcode-sticker {
+        width: var(--sticker-width);
+        height: var(--sticker-height);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        /* border: 1px solid red;  */
+        background: transparent;
+        /* Keep it transparent for printing */
+        page-break-inside: avoid;
+        margin: 0;
+        /* No margin */
+        padding: 3px;
+        /* No padding */
+        box-sizing: border-box;
+
+    }
+
+    /* Company name */
+    .company-name {
+        margin: 0;
+        font-size: 12px;
+        text-align: center;
+        font-weight: bold;
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+    }
+
+    /* Barcode container */
+    .barcode-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        width: 40mm;
+        height: 10mm;
+        overflow: visible;
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+
+    }
+
+    /* Product name */
+    .product-name {
+        font-size: 10px;
+        font-weight: bold;
+        font-family: Arial, sans-serif;
+        text-align: center;
+        margin: 0;
+        padding: 0;
+    }
+
+    /* Price */
+    .price {
+        margin: 0;
+        font-size: 14px;
+        text-align: center;
+        font-weight: bold;
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+    }
+}
+

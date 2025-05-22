@@ -1,0 +1,99 @@
+/* sidebar.css */
+.sidebar {
+  width: 18%;
+  height: 100vh;
+  background-color: #ffffff;
+  position: fixed;
+  top: 81px;
+  left: 0;
+  padding: 20px 12px 20px 10px;
+  box-shadow: 1px 0 2px rgba(0, 0, 0, 0.1);
+  overflow-y: auto;
+}
+
+/* sidebar.css */
+
+.dropdown-menu {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.5s ease-in-out, padding 0.5s ease-in-out;
+}
+
+.dropdown-menu.open {
+  max-height: 500px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+.sidebar li {
+  margin-bottom: 10px;
+}
+
+.sidebar li a {
+  text-decoration: none;
+  color: #333;
+  display: flex;
+  align-items: center;
+  padding: 8px;
+  border-radius: 2px;
+}
+
+.sidebar li span {
+  color: #333;
+}
+
+.sidebar li :hover {
+  background-color: #e9ecef;
+  color: #007bff;
+}
+.sidebar button :hover {
+  background-color: #e9ecef;
+  color: #007bff;
+}
+.sidebar button{
+  border-radius: 2px;
+}
+
+.sidebar .dropdown-menu {
+  list-style-type: none;
+  padding: 0;
+  width: 100%;
+  margin: 0;
+  padding-left: 20px;
+}
+
+.sidebar .dropdown-menu li {
+  display: flex;
+  align-items: center;
+  margin-bottom: 5px;
+}
+
+.sidebar .dropdown-menu li a {
+  display: flex;
+  align-items: center;
+  padding-left: 15px;
+}
+
+.sidebar .dropdown-toggle {
+  background: none;
+  border: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  padding: 8px;
+  border-radius: 4px;
+}
+
+.sidebar .dropdown-toggle:hover {
+  background-color: #e9ecef;
+  color: #007bff;
+}
+
+@media (max-width: 600px) {
+  .sidebar {
+    width: 80%;
+    z-index: 50;
+  }
+}

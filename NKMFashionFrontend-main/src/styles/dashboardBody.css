@@ -1,0 +1,40 @@
+.dashBody {
+    background-color: #F9FAFB;
+    position: absolute;
+    top: 80px;
+    left: 18%;
+    width: 82%;
+    min-height: 100vh;
+}
+
+.saveBtn {
+    background-color: #35AF87;
+    color: white;
+}
+
+.saveBtn:hover {
+    background-color: #16796E;
+}
+
+.searchBox {
+    outline: solid 1px lightgray;
+}
+
+.searchBox:hover {
+    outline: solid 1px darkgray;
+}
+
+/* Remove left property for small screens */
+@media (max-width: 600px) {
+    .dashBody {
+        left: 0;
+        /* Reset left property */
+        width: 100%;
+        /* Make it full width */
+        min-height:100vh;
+    }
+    .contain{
+        min-height:100vh;
+        width: 100%;
+    }
+}

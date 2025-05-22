@@ -1,0 +1,42 @@
+{
+  "name": "possystem",
+  "version": "1.0.0",
+  "description": "pos system and inventory management system",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/IdeaZonelk/ideazonePOS.git"
+  },
+  "author": "ideaZone",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/IdeaZonelk/ideazonePOS/issues"
+  },
+  "homepage": "https://github.com/IdeaZonelk/ideazonePOS#readme",
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "cors": "^2.8.5",
+    "crypto-js": "^4.2.0",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "handlebars": "^4.7.8",
+    "jsbarcode": "^3.11.6",
+    "jsonwebtoken": "^9.0.2",
+    "lodash": "^4.17.21",
+    "moment": "^2.30.1",
+    "mongoose": "^8.5.1",
+    "multer": "^1.4.5-lts.1",
+    "node-thermal-printer": "^4.4.3",
+    "nodemailer": "^6.9.14",
+    "possystem": "file:",
+    "socket.io": "^4.8.1",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.7"
+  }
+}

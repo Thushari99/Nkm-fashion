@@ -1,0 +1,8 @@
+@media print {
+    @page {
+        margin: 0;
+    }
+    body {
+        margin: 0; /* Removes any additional body margin */
+    }
+}
