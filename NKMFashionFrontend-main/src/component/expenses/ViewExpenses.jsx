@@ -200,7 +200,7 @@ function ViewExpensesBody() {
                             onKeyDown={handleKeyDown}
                             name='keyword'
                             type="text"
-                            placeholder="Search Expenses..."
+                            placeholder="Search by Refference ID Or Category..."
                             className="searchBox w-80 pl-10 pr-4 py-2 border border-gray-300 rounded-md shadow-sm focus:border-transparent"
                             value={keyword}
                         />
