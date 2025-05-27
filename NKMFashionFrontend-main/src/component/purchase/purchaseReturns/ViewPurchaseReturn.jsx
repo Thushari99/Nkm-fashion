@@ -129,7 +129,7 @@ function ViewPurchaseReturnBody() {
         setIsModalOpen(true);
     };
 
-    const searchPurchaseReturn = async (query) => {
+    const searchPurchaseReturn = async (query, returnType) => {
         setLoading(true);
         setError("");
 
@@ -141,7 +141,7 @@ function ViewPurchaseReturnBody() {
             }
 
             const response = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/searchPurchaseReturn`, {
-                params: { keyword: query },
+                params: { keyword: query, returnType }, // Pass returnType here
             });
             if (response.data.purchaseReturns && response.data.purchaseReturns.length > 0) {
                 setSearchedSuplierPurchased(response.data.purchaseReturns);
@@ -174,7 +174,8 @@ function ViewPurchaseReturnBody() {
                 setSuccessStatus("");
                 setSearchedSuplierPurchased(purchaseReturnData);
             } else {
-                searchPurchaseReturn(value);
+                // Pass activeTab as returnType
+                searchPurchaseReturn(value, activeTab);
             }
         }, 100);
     };
@@ -256,8 +257,14 @@ function ViewPurchaseReturnBody() {
         }
     };
 
-    const customerReturns = combinedProductData.filter(purchase => purchase.returnType === 'customer');
-    const companyReturns = combinedProductData.filter(purchase => purchase.returnType === 'company');
+    // Instead of always filtering, use the API result directly when searching
+    const isSearching = keyword.trim() !== "";
+
+    const renderData = isSearching
+        ? combinedProductData // This is already filtered by backend
+        : activeTab === 'customer'
+            ? combinedProductData.filter(p => p.returnType === 'customer')
+            : combinedProductData.filter(p => p.returnType === 'company');
 
     const renderTable = (data, title) => (
         <div className="overflow-x-auto mb-8">
@@ -514,13 +521,21 @@ function ViewPurchaseReturnBody() {
                 <div className="flex mb-0">
                     <button
                         className={`px-4 py-2 rounded-tl-md ${activeTab === 'customer' ? 'bg-gray-500 text-white' : 'bg-gray-200 text-gray-700'}`}
-                        onClick={() => setActiveTab('customer')}
+                        onClick={() => {
+                            setActiveTab('customer');
+                            setKeyword('');
+                            setSearchedSuplierPurchased(purchaseReturnData);
+                        }}
                     >
                         Customer Returns
                     </button>
                     <button
                         className={`px-4 py-2 rounded-tr-md  ${activeTab === 'company' ? 'bg-gray-500 text-white' : 'bg-gray-200 text-gray-700'}`}
-                        onClick={() => setActiveTab('company')}
+                        onClick={() => {
+                            setActiveTab('company');
+                            setKeyword('');
+                            setSearchedSuplierPurchased(purchaseReturnData);
+                        }}
                     >
                         Company Returns
                     </button>
@@ -532,10 +547,7 @@ function ViewPurchaseReturnBody() {
                 ) : error ? (
                     <p>{error}</p>
                 ) : (
-                    <>
-                        {activeTab === 'customer' && renderTable(customerReturns, 'Customer Returns')}
-                        {activeTab === 'company' && renderTable(companyReturns, 'Company Returns')}
-                    </>
+                    renderTable(renderData, activeTab === 'customer' ? 'Customer Returns' : 'Company Returns')
                 )}
             </div>
             <ConfirmationModal

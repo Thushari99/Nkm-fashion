@@ -55,22 +55,26 @@ function CustomerReportBody() {
     // Handle search submission
     const handleSubmit = async (searchKeyword) => {
         setLoading(true);
+        setError('');
         try {
             const params = {};
             if (searchKeyword.trim() !== '') {
                 params.name = searchKeyword;
             }
             const response = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/getCustomerReport`, { params });
-            if (Array.isArray(response.data)) {
-                setSearchedCustomerSale(response.data);
-            } else if (response.data?.sales) {
-                setSearchedCustomerSale(response.data.sales);
+            if (
+                (Array.isArray(response.data) && response.data.length > 0) ||
+                (response.data?.sales && response.data.sales.length > 0)
+            ) {
+                setSearchedCustomerSale(response.data.sales || response.data);
+                setError('customer search successfully');
             } else {
                 setSearchedCustomerSale([]);
+                setError('customer search failed');
             }
         } catch (error) {
-            console.error('Find customer error:', error);
             setSearchedCustomerSale([]);
+            setError('customer search failed');
         } finally {
             setLoading(false);
         }
@@ -137,7 +141,7 @@ function CustomerReportBody() {
                             onChange={handleFindUser}
                             name='keyword'
                             type="text"
-                            placeholder="Search..."
+                            placeholder="Search by Customer Name..."
                             className="searchBox w-80 pl-10 pr-4 py-2 border border-gray-300 rounded-md shadow-sm focus:border-transparent"
                             value={keyword}
                         />

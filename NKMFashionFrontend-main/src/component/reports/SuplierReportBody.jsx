@@ -16,6 +16,7 @@ function SuplierReportBody() {
     const [loading, setLoading] = useState(false);
     const [keyword, setKeyword] = useState('');
     const [error, setError] = useState('');
+    const [searched, setSearched] = useState(false);
     const ref = useRef();
 
     //COMBINE ALL DATA FETCHING TYPE INTO ONE STATE
@@ -49,31 +50,44 @@ useEffect(() => {
     // Handle search input change
     const handleFindUser = async (e) => {
         const value = e.target.value;
-        setKeyword(value); // Update state
+        setKeyword(value);
 
         if (value.length > 0) {
-            await handleSubmit(value); // Pass latest value directly
+            await handleSubmit(value);
         } else {
-            setSearchedSuplierSale([]); // Clear results if input is empty
+            setSearchedSuplierSale([]);
+            setSearched(false); // <-- This hides the message
+            setError('');
         }
     };
 
     // Handle search form submission
     const handleSubmit = async (searchTerm) => {
         setLoading(true);
+        setError('');
+        setSearched(true);
         try {
             const response = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/findReportBySuplier`, {
-                params: { name: searchTerm }  // Use function parameter, not state
+                params: { name: searchTerm }
             });
 
-            if (response.data.status === 'success' && Array.isArray(response.data.data)) {
+            if (
+                response.data.status === 'success' &&
+                Array.isArray(response.data.data) &&
+                response.data.data.length > 0
+            ) {
                 setSearchedSuplierSale(response.data.data);
+                setSaleData([]); // Clear old data
+                setError('supplier found sucessfully');
             } else {
-                setSearchedSuplierSale([]); // Ensure we clear results on unexpected response
+                setSearchedSuplierSale([]); // Clear search results
+                setSaleData([]); // Clear old data
+                setError('No suppliers with sales found');
             }
         } catch (error) {
-            console.error('Find supplier error:', error);
-            setSearchedSuplierSale([]); // Clear results on error
+            setSearchedSuplierSale([]); // Clear search results
+            setSaleData([]); // Clear old data
+            setError('No suppliers with sales found');
         } finally {
             setLoading(false);
         }
@@ -121,7 +135,7 @@ useEffect(() => {
                                 onChange={handleFindUser}
                                 name='keyword'
                                 type="text"
-                                placeholder="Search..."
+                                placeholder="Search by Supplier Name..."
                                 className="searchBox w-80 pl-10 pr-4 py-2 border border-gray-300 rounded-md shadow-sm focus:border-transparent"
                                 value={keyword}
                             />
@@ -185,7 +199,13 @@ useEffect(() => {
                         <p className='text-center text-gray-700 mt-5'>Not data available</p>}
                 </div>
                 <div>
-                    {error && <p className="text-green-500 mt-5 text-center">{error}</p>}
+                    {searched && !loading && (
+                        combinedProductData.length > 0 ? (
+                            <p className="text-green-500 mt-5 text-center">supplier found sucessfully</p>
+                        ) : (
+                            <p className="text-red-500 mt-5 text-center">No suppliers with sales found</p>
+                        )
+                    )}
                 </div>
             </div>
         </div>

@@ -522,7 +522,7 @@ const removeProductFromPurchaseReturn = async (req, res) => {
 };
 
 const searchPurchaseReturns = async (req, res) => {
-    const { keyword } = req.query; // Extract the keyword from query parameters
+    const { keyword, returnType } = req.query; // Get returnType from query
 
     try {
         if (!keyword) {
@@ -532,18 +532,23 @@ const searchPurchaseReturns = async (req, res) => {
             });
         }
 
-        // Escape special regex characters in the keyword to prevent regex injection
         const escapedKeyword = keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
-        // Build query to search by customer or refferenceId
+        // Add returnType to the query if provided
         const query = {
-            $or: [
-                { customer: { $regex: new RegExp(`${escapedKeyword}`, 'i') } }, // Case-insensitive search
-                { refferenceId: { $regex: new RegExp(`${escapedKeyword}`, 'i') } }
+            $and: [
+                {
+                    $or: [
+                        { customer: { $regex: new RegExp(`${escapedKeyword}`, 'i') } },
+                        { refferenceId: { $regex: new RegExp(`${escapedKeyword}`, 'i') } }
+                    ]
+                }
             ]
         };
+        if (returnType) {
+            query.$and.push({ returnType });
+        }
 
-        // Fetch purchase returns based on the query
         const purchaseReturns = await PurchaseReturn.find(query).populate('productsData.currentID', 'productName productQty');
 
         if (!purchaseReturns || purchaseReturns.length === 0) {
@@ -588,7 +593,35 @@ const searchPurchaseReturns = async (req, res) => {
     }
 };
 
+// const searchPurchaseReturn = async (query, returnType) => {
+//     setLoading(true);
+//     setError("");
 
+//     try {
+//         if (!query.trim()) {
+//             setSearchedSuplierPurchased(purchaseReturnData);
+//             setSuccessStatus("");
+//             return;
+//         }
+
+//         const response = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/searchPurchaseReturn`, {
+//             params: { keyword: query, returnType }, // Always pass returnType
+//         });
+//         if (response.data.purchaseReturns && response.data.purchaseReturns.length > 0) {
+//             setSearchedSuplierPurchased(response.data.purchaseReturns);
+//             setSuccessStatus("");
+//         } else {
+//             setSearchedSuplierPurchased([]);
+//             setError("No purchase returns found for the given query.");
+//         }
+//     } catch (error) {
+//         console.error("Search product error:", error);
+//         setSearchedSuplierPurchased([]);
+//         setError("No purchase returns found for the given query.");
+//     } finally {
+//         setLoading(false);
+//     }
+// };
 
 
 module.exports = { returnPurchase, fetchAllPurchaseReturns, deletePurchaseReturn, updatePurchaseReturn, fetchPurchaseReturns, findPurchaseReturnById, removeProductFromPurchaseReturn, searchPurchaseReturns };

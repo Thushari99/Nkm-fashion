@@ -94,20 +94,34 @@ function StokeReportBody() {
     // Handle search form submission
     const handleSubmit = async () => {
         setLoading(true);
+        setError('');
         try {
             const response = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/findStokeReportByCode`, {
                 params: { name: keyword }
             });
             if (Array.isArray(response.data)) {
                 setSearchedStokeReport(response.data);
+                setError(response.data.length === 0 ? 'No products found' : 'Products found');
             } else if (response.data && response.data.products) {
-                setSearchedStokeReport(response.data.products); // Adjust based on your actual response structure
+                setSearchedStokeReport(response.data.products);
+                setError(
+                    response.data.products.length === 0
+                        ? (response.data.status || 'No products found')
+                        : (response.data.status || 'Products found')
+                );
             } else {
-                setSearchedStokeReport([]); // Fallback to an empty array if data is unexpected
+                setSearchedStokeReport([]);
+                setError('No products found');
             }
         } catch (error) {
-            console.error('Find customer error:', error);
-            setSearchedStokeReport([]); // Clear the search results on error
+            setSearchedStokeReport([]);
+            if (error.response && error.response.data && error.response.data.status) {
+                setError(error.response.data.status);
+            } else if (error.response && error.response.data && error.response.data.message) {
+                setError(error.response.data.message);
+            } else {
+                setError('No products found');
+            }
         } finally {
             setLoading(false);
         }
@@ -197,7 +211,7 @@ function StokeReportBody() {
                             onChange={handleFindUser}
                             name='keyword'
                             type="text"
-                            placeholder="Search..."
+                            placeholder="Search by Name Or Code..."
                             className="searchBox w-80 pl-10 pr-4 py-2 border border-gray-300 rounded-md shadow-sm focus:border-transparent"
                             value={keyword}
                         />
@@ -208,68 +222,126 @@ function StokeReportBody() {
                         <Box sx={{ width: '100%', position: "absolute", top: "0", left: "0", margin: "0", padding: "0" }}>
                             <LinearProgress />
                         </Box>
-                    ) : combinedProductData.length > 0 ? (
-                        <div className="overflow-x-auto p-6">
-                            <table className="min-w-full bg-white border border-gray-200 pr-2">
-                                <thead className="bg-gray-50">
-                                    <tr>
-                                        <th className="px-7 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
-                                        <th className="px-7 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-                                        <th className="px-7 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Code</th>
-                                        <th className="px-7 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Brand</th>
-                                        <th className="px-7 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
-                                        <th className="px-7 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">In Stock</th>
-                                        <th className="px-7 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created On</th>
-                                        <th className="px-7 py-3 text-right mr-5 text-xs font-medium text-gray-500 uppercase tracking-wider text-right">Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="bg-white divide-y divide-gray-200">
-                                    {combinedProductData.map((p) => (
-                                        <tr key={p._id}>
-                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                <img
-                                                    src={p.image ? p.image : ProductIcon}
-                                                    alt={p.name}
-                                                    className="w-10 h-10 object-cover rounded-full"
-                                                />
-                                            </td>
-                                            <td className="px-7 py-5 text-left whitespace-nowrap text-m text-gray-900">{p.name}</td>
-                                            <td className="px-7 py-5 text-left whitespace-nowrap text-m text-gray-900">{p.code}</td>
-                                            <td className="px-4 py-5 text-left whitespace-nowrap text-m text-gray-900">{p.brand}</td>
-                                            <td className="px-7 py-5 text-left whitespace-nowrap text-m text-gray-900">{currency}{' '}{formatWithCustomCommas(getPriceRange(p))}</td>
-                                            <td className="px-7 py-5 text-left whitespace-nowrap text-m text-gray-900 flex">
-                                                <p className='mr-2 text-left rounded-[5px] text-center p-[6px] bg-green-100 text-green-500'>{p.productQty ? p.productQty : getQty(p)}</p> <p className='rounded-[5px] text-center p-[6px] bg-green-100 text-blue-500'>{p.saleUnit}</p>
-                                            </td>
-                                            <td className="px-7 py-5 whitespace-nowrap text-m text-gray-900">{p.createdAt}</td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right">
-                                                <div className='flex items-center justify-end'>
-                                                    <Link to={`/clickedStokeRep/${p._id}`}
-                                                        className="text-[#35AF87] hover:text-[#16796E] font-bold py-1 px-2 mr-2 text-lg"
-                                                        style={{ background: 'transparent' }}
-                                                    >
-                                                        <i className="fas fa-eye mr-1"></i>
-                                                    </Link>
-                                                </div>
-                                            </td>
+                    ) : (keyword.trim() !== '' ? (
+                        searchedStokeReport && searchedStokeReport.length > 0 ? (
+                            <>
+                                <p className="text-center text-green-600 mt-2">{error === 'Products found' ? error : ''}</p>
+                                <div className="overflow-x-auto p-6">
+                                    {/* table using searchedStokeReport */}
+                                    <table className="min-w-full bg-white border border-gray-200 pr-2">
+                                        <thead className="bg-gray-50">
+                                            <tr>
+                                                <th className="px-7 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
+                                                <th className="px-7 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                                                <th className="px-7 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Code</th>
+                                                <th className="px-7 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Brand</th>
+                                                <th className="px-7 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
+                                                <th className="px-7 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">In Stock</th>
+                                                <th className="px-7 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created On</th>
+                                                <th className="px-7 py-3 text-right mr-5 text-xs font-medium text-gray-500 uppercase tracking-wider text-right">Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="bg-white divide-y divide-gray-200">
+                                            {searchedStokeReport.map((p) => (
+                                                <tr key={p._id}>
+                                                    <td className="px-6 py-4 whitespace-nowrap">
+                                                        <img
+                                                            src={p.image ? p.image : ProductIcon}
+                                                            alt={p.name}
+                                                            className="w-10 h-10 object-cover rounded-full"
+                                                        />
+                                                    </td>
+                                                    <td className="px-7 py-5 text-left whitespace-nowrap text-m text-gray-900">{p.name}</td>
+                                                    <td className="px-7 py-5 text-left whitespace-nowrap text-m text-gray-900">{p.code}</td>
+                                                    <td className="px-4 py-5 text-left whitespace-nowrap text-m text-gray-900">{p.brand}</td>
+                                                    <td className="px-7 py-5 text-left whitespace-nowrap text-m text-gray-900">{currency}{' '}{formatWithCustomCommas(getPriceRange(p))}</td>
+                                                    <td className="px-7 py-5 text-left whitespace-nowrap text-m text-gray-900 flex">
+                                                        <p className='mr-2 text-left rounded-[5px] text-center p-[6px] bg-green-100 text-green-500'>{p.productQty ? p.productQty : getQty(p)}</p> <p className='rounded-[5px] text-center p-[6px] bg-green-100 text-blue-500'>{p.saleUnit}</p>
+                                                    </td>
+                                                    <td className="px-7 py-5 whitespace-nowrap text-m text-gray-900">{p.createdAt}</td>
+                                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right">
+                                                        <div className='flex items-center justify-end'>
+                                                            <Link to={`/clickedStokeRep/${p._id}`}
+                                                                className="text-[#35AF87] hover:text-[#16796E] font-bold py-1 px-2 mr-2 text-lg"
+                                                                style={{ background: 'transparent' }}
+                                                            >
+                                                                <i className="fas fa-eye mr-1"></i>
+                                                            </Link>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </>
+                        ) : (
+                            <p className="text-center text-red-500 mt-5">{error || 'No products found'}</p>
+                        )
+                    ) : (
+                        stokeData && stokeData.length > 0 ? (
+                            <div className="overflow-x-auto p-6">
+                                {/* table using stokeData */}
+                                <table className="min-w-full bg-white border border-gray-200 pr-2">
+                                    <thead className="bg-gray-50">
+                                        <tr>
+                                            <th className="px-7 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
+                                            <th className="px-7 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                                            <th className="px-7 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Code</th>
+                                            <th className="px-7 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Brand</th>
+                                            <th className="px-7 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
+                                            <th className="px-7 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">In Stock</th>
+                                            <th className="px-7 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created On</th>
+                                            <th className="px-7 py-3 text-right mr-5 text-xs font-medium text-gray-500 uppercase tracking-wider text-right">Action</th>
                                         </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    ) :
-                        <p className='text-center text-gray-700 mt-5'></p>}
+                                    </thead>
+                                    <tbody className="bg-white divide-y divide-gray-200">
+                                        {stokeData.map((p) => (
+                                            <tr key={p._id}>
+                                                <td className="px-6 py-4 whitespace-nowrap">
+                                                    <img
+                                                        src={p.image ? p.image : ProductIcon}
+                                                        alt={p.name}
+                                                        className="w-10 h-10 object-cover rounded-full"
+                                                    />
+                                                </td>
+                                                <td className="px-7 py-5 text-left whitespace-nowrap text-m text-gray-900">{p.name}</td>
+                                                <td className="px-7 py-5 text-left whitespace-nowrap text-m text-gray-900">{p.code}</td>
+                                                <td className="px-4 py-5 text-left whitespace-nowrap text-m text-gray-900">{p.brand}</td>
+                                                <td className="px-7 py-5 text-left whitespace-nowrap text-m text-gray-900">{currency}{' '}{formatWithCustomCommas(getPriceRange(p))}</td>
+                                                <td className="px-7 py-5 text-left whitespace-nowrap text-m text-gray-900 flex">
+                                                    <p className='mr-2 text-left rounded-[5px] text-center p-[6px] bg-green-100 text-green-500'>{p.productQty ? p.productQty : getQty(p)}</p> <p className='rounded-[5px] text-center p-[6px] bg-green-100 text-blue-500'>{p.saleUnit}</p>
+                                                </td>
+                                                <td className="px-7 py-5 whitespace-nowrap text-m text-gray-900">{p.createdAt}</td>
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right">
+                                                    <div className='flex items-center justify-end'>
+                                                        <Link to={`/clickedStokeRep/${p._id}`}
+                                                            className="text-[#35AF87] hover:text-[#16796E] font-bold py-1 px-2 mr-2 text-lg"
+                                                            style={{ background: 'transparent' }}
+                                                        >
+                                                            <i className="fas fa-eye mr-1"></i>
+                                                        </Link>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        ) : (
+                            <p className="text-center text-gray-700 mt-5">{error || 'No products found'}</p>
+                        )
+                    ))}
                 </div>
-                <div>
+                {/* <div>
                     {error && (
                         <p
-                            className={`mt-5 text-center ${error === 'No products found' ? 'text-gray-700' : 'text-red-500'
-                                }`}
+                            className={`mt-5 text-center ${error === 'No products found' ? 'text-gray-700' : 'text-red-500'}`}
                         >
                             {error}
                         </p>
                     )}
-
-                </div>
+                </div> */}
             </div>
         </div>
     );

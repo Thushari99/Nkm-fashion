@@ -17,7 +17,7 @@ const findAllStoke = async (req, res) => {
         const products = await Product.find(warehouseFilter);
 
         if (!products.length) {
-            return res.status(404).json({ status: 'No products found' });
+            return res.status(404).json({ status: 'No products found', products: [] });
         }
 
         const allProducts = [];
