@@ -91,14 +91,24 @@ function QuantityAlertReportBody() {
             });
             if (Array.isArray(response.data)) {
                 setSearchedStokeReport(response.data);
+                setError('');
             } else if (response.data && response.data.products) {
-                setSearchedStokeReport(response.data.products); // Adjust based on your actual response structure
+                setSearchedStokeReport(response.data.products);
+                setError('');
+            } else if (response.data && response.data.status) {
+                setSearchedStokeReport([]);
+                setError(response.data.status); // Show backend status message
             } else {
-                setSearchedStokeReport([]); // Fallback to an empty array if data is unexpected
+                setSearchedStokeReport([]);
+                setError('No products found');
             }
         } catch (error) {
-            console.error('Find customer error:', error);
-            setSearchedStokeReport([]); // Clear the search results on error
+            setSearchedStokeReport([]);
+            if (error.response && error.response.data && error.response.data.status) {
+                setError(error.response.data.status); // Show backend status message
+            } else {
+                setError('No products found');
+            }
         } finally {
             setLoading(false);
         }
@@ -209,7 +219,7 @@ function QuantityAlertReportBody() {
                                 onChange={handleFindUser}
                                 name='keyword'
                                 type="text"
-                                placeholder="Search..."
+                                placeholder="Search by name or code ..."
                                 className="searchBox w-80 pl-10 pr-4 py-2 border border-gray-300 rounded-md shadow-sm focus:border-transparent"
                                 value={keyword}
                             />
@@ -228,19 +238,17 @@ function QuantityAlertReportBody() {
                                 error={error}
                             />
                         </div>
-                    ) :
-                        <p className='text-center text-gray-700 mt-5'>No data available</p>}
+                    ) : error ? (
+                        <p className="text-center text-red-500 mt-5">{error}</p>
+                    ) : null}
                 </div>
-                <div>
-                    {error && (
-                        <p
-                            className={`mt-5 text-center ${error === 'No products found' ? 'text-gray-700' : 'text-red-500'
-                                }`}
-                        >
+                {/* <div>
+                    {/* {error && (
+                        <p className="mt-5 text-center text-red-500">
                             {error}
                         </p>
-                    )}
-                </div>
+                    )} */}
+                {/* </div> */} 
             </div>
         </div>
     );

@@ -94,53 +94,61 @@ const processWarehouseData = (warehouseName, warehouseDetails, productObj, forma
 
 
 const findStokeReportByCode = async (req, res) => {
-    const { name } = req.query;
+    const { name, warehouse } = req.query;
 
     try {
         if (!name) {
-            return res.status(400).json({ status: 'No search keyword provided' });
+            return res.status(400).json({ status: 'No search keyword provided', products: [] });
         }
 
-        // Use a regex pattern to enable partial matching on both code and name fields
-        const searchRegex = new RegExp(name, 'i'); // 'i' for case-insensitive
-        const products = await Product.find({
+        // Regex for partial match
+        const searchRegex = new RegExp(name, 'i');
+        // Build base query
+        const baseQuery = {
             $or: [
                 { code: searchRegex },
                 { name: searchRegex }
             ]
-        });
+        };
+
+        // Fetch products
+        const products = await Product.find(baseQuery);
 
         if (!products.length) {
-            return res.status(404).json({ status: 'No products found for this search term' });
+            return res.status(404).json({ status: 'No products found for this search term', products: [] });
         }
 
-        // Array to hold all products including variations and single products
+        // Prepare results
         const searchResults = [];
-
-        // Process each product to format variations and include additional fields
         products.forEach(product => {
             const productObj = product.toObject();
-
-            // Convert image to base64 data URL if it exists
             let imageUrl = null;
             if (productObj.image) {
                 imageUrl = `${req.protocol}://${req.get('host')}/uploads/product/${path.basename(productObj.image)}`;
             }
 
-            // Process each warehouse
-            productObj.warehouse.forEach((warehouseDetails, warehouseName) => {
-                // Check if product has variations
+            // Filter warehouses if warehouse param is set
+            const warehousesToProcess = [];
+            if (warehouse && warehouse !== 'all') {
+                const whDetails = productObj.warehouse.get(warehouse);
+                if (whDetails) warehousesToProcess.push([warehouse, whDetails]);
+            } else {
+                productObj.warehouse.forEach((whDetails, whName) => {
+                    warehousesToProcess.push([whName, whDetails]);
+                });
+            }
+
+            warehousesToProcess.forEach(([warehouseName, warehouseDetails]) => {
                 if (warehouseDetails.variationValues && warehouseDetails.variationValues.size > 0) {
-                    // Process each variation as an individual product
                     warehouseDetails.variationValues.forEach((value, key) => {
                         searchResults.push({
                             ...productObj,
-                            _id: `${productObj._id}_${key}`,  // Unique ID for each variation
-                            name: `${productObj.name} - ${key}`,  // Append variation name to product name
+                            _id: `${productObj._id}_${key}`,
+                            name: `${productObj.name} - ${key}`,
                             warehouseName,
-                            variationValue: key,  // Store the specific variation name
-                            variationDetails: value,  // Store details for this specific variation
-                            productCost: value.productCost,  // Use variation-specific details
+                            variationValue: key,
+                            variationDetails: value,
+                            productCost: value.productCost,
                             productPrice: value.productPrice,
                             productQty: value.productQty,
                             orderTax: value.orderTax,
@@ -150,7 +158,6 @@ const findStokeReportByCode = async (req, res) => {
                         });
                     });
                 } else {
-                    // Single product without variations
                     searchResults.push({
                         ...productObj,
                         _id: productObj._id,
@@ -167,10 +174,13 @@ const findStokeReportByCode = async (req, res) => {
             });
         });
 
-        return res.status(200).json({ status: 'Products found', products: searchResults });
+        return res.status(200).json({
+            status: searchResults.length > 0 ? 'Products found' : 'No products found',
+            products: searchResults
+        });
     } catch (error) {
         console.error('Error searching products:', error);
-        return res.status(500).json({ status: 'Error searching products', error: error.message });
+        return res.status(500).json({ status: 'Error searching products', products: [], error: error.message });
     }
 };
 

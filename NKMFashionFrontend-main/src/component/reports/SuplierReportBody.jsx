@@ -16,7 +16,6 @@ function SuplierReportBody() {
     const [loading, setLoading] = useState(false);
     const [keyword, setKeyword] = useState('');
     const [error, setError] = useState('');
-    const [searched, setSearched] = useState(false);
     const ref = useRef();
 
     //COMBINE ALL DATA FETCHING TYPE INTO ONE STATE
@@ -50,14 +49,12 @@ useEffect(() => {
     // Handle search input change
     const handleFindUser = async (e) => {
         const value = e.target.value;
-        setKeyword(value);
+        setKeyword(value); // Update state
 
         if (value.length > 0) {
-            await handleSubmit(value);
+            await handleSubmit(value); // Pass latest value directly
         } else {
-            setSearchedSuplierSale([]);
-            setSearched(false); // <-- This hides the message
-            setError('');
+            setSearchedSuplierSale([]); // Clear results if input is empty
         }
     };
 
@@ -65,7 +62,6 @@ useEffect(() => {
     const handleSubmit = async (searchTerm) => {
         setLoading(true);
         setError('');
-        setSearched(true);
         try {
             const response = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/findReportBySuplier`, {
                 params: { name: searchTerm }
@@ -77,17 +73,19 @@ useEffect(() => {
                 response.data.data.length > 0
             ) {
                 setSearchedSuplierSale(response.data.data);
-                setSaleData([]); // Clear old data
-                setError('supplier found sucessfully');
+                setError('');
             } else {
-                setSearchedSuplierSale([]); // Clear search results
-                setSaleData([]); // Clear old data
-                setError('No suppliers with sales found');
+                setSearchedSuplierSale([]);
+                setError(response.data.message || 'No suppliers found');
             }
         } catch (error) {
-            setSearchedSuplierSale([]); // Clear search results
-            setSaleData([]); // Clear old data
-            setError('No suppliers with sales found');
+            setSearchedSuplierSale([]);
+            // Use backend error message if available
+            if (error.response && error.response.data && error.response.data.message) {
+                setError(error.response.data.message);
+            } else {
+                setError('No suppliers found');
+            }
         } finally {
             setLoading(false);
         }
@@ -135,7 +133,7 @@ useEffect(() => {
                                 onChange={handleFindUser}
                                 name='keyword'
                                 type="text"
-                                placeholder="Search by Supplier Name..."
+                                placeholder="Search by Suplier Name..."
                                 className="searchBox w-80 pl-10 pr-4 py-2 border border-gray-300 rounded-md shadow-sm focus:border-transparent"
                                 value={keyword}
                             />
@@ -199,13 +197,7 @@ useEffect(() => {
                         <p className='text-center text-gray-700 mt-5'>Not data available</p>}
                 </div>
                 <div>
-                    {searched && !loading && (
-                        combinedProductData.length > 0 ? (
-                            <p className="text-green-500 mt-5 text-center">supplier found sucessfully</p>
-                        ) : (
-                            <p className="text-red-500 mt-5 text-center">No suppliers with sales found</p>
-                        )
-                    )}
+                    {error && <p className="text-red-500 mt-5 text-center">{error}</p>}
                 </div>
             </div>
         </div>
@@ -213,3 +205,4 @@ useEffect(() => {
 }
 
 export default SuplierReportBody;
+
